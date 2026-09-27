@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/functions/v1/:match*",
+      "destination": "http://127.0.0.1:3001/functions/v1/:match*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "dev-partner-ai",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "start": "node server/runner.mjs",
+    "server": "node server/runner.mjs",
+    "runner": "node server/runner.mjs",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/prismjs": "^1.26.6",
+    "lucide-react": "^1.48.0",
+    "prismjs": "^1.30.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^5.1.1",
+    "globals": "^16.5.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vite-plugin-svgr": "^4.5.0"
+  }
+}

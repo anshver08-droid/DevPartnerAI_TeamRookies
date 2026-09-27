@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Fira Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-heading: "Fira Code", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --color-primary: #0f172a;
+  --color-on-primary: #ffffff;
+  --color-secondary: #475569;
+  --color-accent: #0284c7;
+  --color-background: #f8fafc;
+  --color-foreground: #0f172a;
+  --color-muted: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-destructive: #dc2626;
+  --color-ring: #0284c7;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background-color: rgba(2, 132, 199, 0.15);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+}
+
+/* Subtle modern glow for AI-generated surfaces in clean light theme */
+.ai-glow {
+  box-shadow:
+    0 0 0 1px rgba(99, 102, 241, 0.18),
+    0 2px 12px rgba(99, 102, 241, 0.08);
+  background: linear-gradient(135deg, rgba(245, 243, 255, 0.7) 0%, rgba(238, 242, 255, 0.7) 100%);
+}
+
+/* Completion pop for the "accepted" reveal */
+@keyframes check-pop {
+  0% {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.check-pop {
+  animation: check-pop 300ms ease-out;
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.soft-pulse {
+  animation: soft-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
