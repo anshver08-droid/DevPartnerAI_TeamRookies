@@ -65,7 +65,7 @@ IBM Bob was used to assist with the verification and adversarial testing functio
 IBM Bob was used to assist with implementing, debugging, and refining the verification and adversarial-testing functionality. The resulting code was reviewed, tested, and integrated by the team member.
 
 ## ![Evidence](<SS evidence/evidence verificationabd debug.jpeg>)
-## [Evidence](<SS evidence/evidence debug.jpeg>)
+## ![Evidence](<SS evidence/evidence debug.jpeg>)
 contains the IBM Bob task/session summary for this development work.
 
 # Member 4 UI Design and Evidence
@@ -377,11 +377,10 @@ HACKATHON_EVIDENCE.md
 DevPartner AI
 Built for the IBM Bob 2.0 Hackathon.
 Team members:
-[Member 1]
-[Member 2]
-[Member 3]
-[Member 4]
-[Member 5]
+[Ansh Verma] Team Lead
+[Akash Singh]
+[Astitva Mall]
+[Aditya Soam]
 🎯 Vision
 AI-assisted development should not require developers to blindly trust generated changes.
 DevPartner AI aims to create a development workflow where AI can help create software while the resulting changes are:
