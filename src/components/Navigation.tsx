@@ -1,7 +1,6 @@
 import {
   BookOpen,
   Code2,
-  ExternalLink,
   GitBranch,
   LayoutGrid,
   RotateCcw,
@@ -132,19 +131,6 @@ export function Navigation({
               fallbacks active
             </span>
           )}
-
-          {/* GitHub Repo Link */}
-          <a
-            href="https://github.com/Akash9250/Dev-Partner-Antigravity"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden lg:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-2xs"
-            title="View source on GitHub"
-          >
-            <GitBranch className="size-3.5 text-slate-500" strokeWidth={1.75} />
-            <span>GitHub</span>
-            <ExternalLink className="size-3 text-slate-400" strokeWidth={1.75} />
-          </a>
 
           {/* Primary Action Button */}
           {activeTab === "workspace" ? (

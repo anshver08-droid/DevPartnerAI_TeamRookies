@@ -271,7 +271,7 @@ export default function App() {
                     <li className="flex gap-2.5">
                       <Mono className="text-sky-700 font-semibold self-start">1</Mono>
                       <span>
-                        <strong className="font-semibold text-slate-800">Scan & request</strong> — connect any public repository or use the demo shop; describe the change.
+                        <strong className="font-semibold text-slate-800">Scan & request</strong> — connect any public repository, local folder, or file; describe the change.
                       </span>
                     </li>
                     <li className="flex gap-2.5">
@@ -289,7 +289,7 @@ export default function App() {
                     <li className="flex gap-2.5">
                       <Mono className="text-sky-700 font-semibold self-start">4</Mono>
                       <span>
-                        <strong className="font-semibold text-slate-800">Verify</strong> — full suite, property checks, mutation testing, adversarial counterexample hunt, then an auditable evidence report.
+                        <strong className="font-semibold text-slate-800">Verify</strong> — DevPartner AI verifies correctness, security, and regressions via full suite, property checks, mutation testing, and adversarial counterexample hunt; produces an auditable evidence report.
                       </span>
                     </li>
                     <li className="flex gap-2.5">

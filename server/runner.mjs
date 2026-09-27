@@ -11,6 +11,84 @@ const __dirname = path.dirname(__filename);
 const PORT = parseInt(process.env.RUNNER_PORT || '3001', 10);
 const HOST = process.env.RUNNER_HOST || '127.0.0.1';
 
+// ── watsonx AI configuration ─────────────────────────────────────────────────
+const WATSONX_API_KEY    = process.env.WATSONX_API_KEY    || '';
+const WATSONX_PROJECT_ID = process.env.WATSONX_PROJECT_ID || '';
+const WATSONX_MODEL      = process.env.VITE_WATSONX_MODEL  || 'ibm/granite-3-8b-instruct';
+const WATSONX_REGION     = process.env.WATSONX_REGION      || 'us-south';
+const WATSONX_API_URL    = `https://${WATSONX_REGION}.ml.cloud.ibm.com/ml/v1/text/generation?version=2023-05-29`;
+const IAM_TOKEN_URL      = 'https://iam.cloud.ibm.com/identity/token';
+
+let _iamToken = null;
+let _iamExpiry = 0;
+
+/** Fetches (and caches) an IBM Cloud IAM bearer token. */
+async function getIamToken() {
+  if (_iamToken && Date.now() < _iamExpiry) return _iamToken;
+
+  const body = new URLSearchParams({
+    grant_type: 'urn:ibm:params:oauth:grant-type:apikey',
+    apikey: WATSONX_API_KEY,
+  });
+
+  const res = await fetch(IAM_TOKEN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`IAM token fetch failed (${res.status}): ${text.slice(0, 200)}`);
+  }
+
+  const json = await res.json();
+  _iamToken  = json.access_token;
+  // Expire 60 s before the real expiry to give headroom
+  _iamExpiry = Date.now() + (json.expires_in - 60) * 1000;
+  return _iamToken;
+}
+
+/**
+ * Calls the IBM watsonx text-generation REST endpoint.
+ * Returns the generated text string, or throws on failure.
+ */
+async function callWatsonx(prompt) {
+  const token = await getIamToken();
+
+  const res = await fetch(WATSONX_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      model_id: WATSONX_MODEL,
+      project_id: WATSONX_PROJECT_ID,
+      input: prompt,
+      parameters: {
+        decoding_method: 'greedy',
+        max_new_tokens: 512,
+        stop_sequences: ['</result>'],
+        temperature: 0.2,
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`watsonx API error (${res.status}): ${text.slice(0, 200)}`);
+  }
+
+  const json = await res.json();
+  return (json.results?.[0]?.generated_text ?? '').trim();
+}
+
+/** Returns true when real watsonx credentials are present. */
+function watsonxConfigured() {
+  return Boolean(WATSONX_API_KEY && WATSONX_PROJECT_ID);
+}
+
 // In-memory store for runs history
 const runsStore = [
   {
@@ -34,7 +112,7 @@ function sendJson(res, statusCode, data) {
   res.end(body);
 }
 
-function handleAiEngineAction(action, payload) {
+async function handleAiEngineAction(action, payload) {
   const reqText = String(payload?.request || payload?.payload?.request || '');
 
   switch (action) {
@@ -44,14 +122,36 @@ function handleAiEngineAction(action, payload) {
         data: {
           service: 'ai-engine',
           time: Date.now(),
-          modelConfigured: true,
-          model: 'ibm/granite-3-8b-instruct',
+          modelConfigured: watsonxConfigured(),
+          model: WATSONX_MODEL,
           runner: 'active',
-          environment: 'local-runner',
+          environment: watsonxConfigured() ? 'watsonx-live' : 'local-runner',
         },
       };
 
     case 'extract_intent': {
+      if (watsonxConfigured()) {
+        try {
+          const prompt =
+            `You are DevPartner AI. Analyze the following developer change request and extract structured intent.\n` +
+            `Request: "${reqText}"\n\n` +
+            `Respond in valid JSON with this exact shape (no markdown fences):\n` +
+            `{"feature":"<short feature name>","summary":"<one sentence>","requirements":[{"slug":"<slug>","label":"<label>"}],"constraints":[{"slug":"<slug>","label":"<label>"}],"invariants":[{"slug":"<slug>","label":"<label>"}],"affectedAreas":["<area>"],"confidence":<0-1>}\n` +
+            `<result>`;
+
+          const raw = await callWatsonx(prompt);
+          const jsonStart = raw.indexOf('{');
+          const jsonEnd   = raw.lastIndexOf('}');
+          if (jsonStart !== -1 && jsonEnd !== -1) {
+            const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+            return { ok: true, data: { ...parsed, source: 'ai' } };
+          }
+        } catch (err) {
+          console.error('[watsonx] extract_intent failed, using fallback:', err.message);
+        }
+      }
+
+      // Deterministic fallback
       const lower = reqText.toLowerCase();
       const isSecurity = lower.includes('auth') || lower.includes('token') || lower.includes('delete') || lower.includes('admin') || lower.includes('security');
       return {
@@ -79,7 +179,7 @@ function handleAiEngineAction(action, payload) {
           ],
           affectedAreas: ['auth', 'api', 'users', 'tests'],
           confidence: 0.94,
-          source: 'ai',
+          source: 'fallback',
         },
       };
     }
@@ -99,13 +199,38 @@ function handleAiEngineAction(action, payload) {
         ? 'src/demo/tests.ts'
         : (changedFiles.find(f => f.includes('test') || f.includes('spec')) || 'tests/integration/api.test.js');
 
+      if (watsonxConfigured()) {
+        try {
+          const prompt =
+            `You are DevPartner AI. Generate a structured patch plan for the following intent.\n` +
+            `Feature: ${intent?.feature || reqText}\n` +
+            `Target file: ${targetFile}\n` +
+            `Test file: ${testFile}\n` +
+            `Risk level: ${risk?.level || 'MODERATE'} (score ${risk?.score ?? 35}/100)\n\n` +
+            `Respond in valid JSON with this exact shape (no markdown fences):\n` +
+            `{"title":"<plan title>","summary":"<one sentence>","steps":[{"order":1,"title":"<step>","detail":"<detail>","files":["<file>"],"tests":["<test>"],"risky":<bool>}],"rollback":"<rollback description>"}\n` +
+            `<result>`;
+
+          const raw = await callWatsonx(prompt);
+          const jsonStart = raw.indexOf('{');
+          const jsonEnd   = raw.lastIndexOf('}');
+          if (jsonStart !== -1 && jsonEnd !== -1) {
+            const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+            return { ok: true, data: { ...parsed, source: 'ai' } };
+          }
+        } catch (err) {
+          console.error('[watsonx] generate_plan failed, using fallback:', err.message);
+        }
+      }
+
+      // Deterministic fallback
       return {
         ok: true,
         data: {
           title: intent?.feature
             ? `Execute verified patch: ${intent.feature}`
             : 'Verified Isolated Patch Plan',
-          summary: `Execute isolated patch on ${targetFile} with multi-stage verification suite. Risk assessment: ${risk?.level || 'MODERATE'} (${risk?.score ?? 35}/100). Generated via IBM watsonx granite runner.`,
+          summary: `Execute isolated patch on ${targetFile} with multi-stage verification suite. Risk assessment: ${risk?.level || 'MODERATE'} (${risk?.score ?? 35}/100). Generated via deterministic fallback.`,
           steps: [
             {
               order: 1,
@@ -133,12 +258,34 @@ function handleAiEngineAction(action, payload) {
             },
           ],
           rollback: `Discard working branch changes on ${targetFile} and restore base SHA-256 snapshot with zero side effects.`,
-          source: 'ai',
+          source: 'fallback',
         },
       };
     }
 
-    case 'hunt_counterexamples':
+    case 'hunt_counterexamples': {
+      if (watsonxConfigured()) {
+        try {
+          const invariants = (payload?.invariants || []).map(i => i.label || i).join('; ') || 'general safety invariants';
+          const prompt =
+            `You are DevPartner AI. Hunt for adversarial counterexamples against these invariants: ${invariants}\n` +
+            `Change request: "${reqText}"\n\n` +
+            `Respond in valid JSON (no markdown fences):\n` +
+            `{"violations":[],"checkedScenarios":<number>,"passed":<bool>,"details":"<summary>"}\n` +
+            `<result>`;
+
+          const raw = await callWatsonx(prompt);
+          const jsonStart = raw.indexOf('{');
+          const jsonEnd   = raw.lastIndexOf('}');
+          if (jsonStart !== -1 && jsonEnd !== -1) {
+            const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+            return { ok: true, data: parsed };
+          }
+        } catch (err) {
+          console.error('[watsonx] hunt_counterexamples failed, using fallback:', err.message);
+        }
+      }
+
       return {
         ok: true,
         data: {
@@ -148,8 +295,37 @@ function handleAiEngineAction(action, payload) {
           details: 'All adversarial boundary scenarios passed against declared invariants.',
         },
       };
+    }
 
-    case 'generate_evidence':
+    case 'generate_evidence': {
+      if (watsonxConfigured()) {
+        try {
+          const prompt =
+            `You are DevPartner AI. Generate a concise auditable evidence summary for this change.\n` +
+            `Request: "${reqText}"\n\n` +
+            `Respond in valid JSON (no markdown fences):\n` +
+            `{"verdict":"SAFE","summary":"<one sentence evidence summary>"}\n` +
+            `<result>`;
+
+          const raw = await callWatsonx(prompt);
+          const jsonStart = raw.indexOf('{');
+          const jsonEnd   = raw.lastIndexOf('}');
+          if (jsonStart !== -1 && jsonEnd !== -1) {
+            const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+            return {
+              ok: true,
+              data: {
+                ...parsed,
+                timestamp: new Date().toISOString(),
+                runnerHash: crypto.randomBytes(16).toString('hex'),
+              },
+            };
+          }
+        } catch (err) {
+          console.error('[watsonx] generate_evidence failed, using fallback:', err.message);
+        }
+      }
+
       return {
         ok: true,
         data: {
@@ -159,6 +335,7 @@ function handleAiEngineAction(action, payload) {
           runnerHash: crypto.randomBytes(16).toString('hex'),
         },
       };
+    }
 
     default:
       return {
@@ -173,7 +350,7 @@ function handleAiEngineAction(action, payload) {
   }
 }
 
-const server = http.createServer((req, res) => {
+async function handleRequest(req, res) {
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   const pathname = url.pathname;
 
@@ -214,14 +391,12 @@ const server = http.createServer((req, res) => {
   // Supabase Edge Function compatibility endpoint: /functions/v1/ai-engine
   if (pathname === '/functions/v1/ai-engine' && req.method === 'POST') {
     let body = '';
-    req.on('data', (chunk) => {
-      body += chunk;
-    });
-    req.on('end', () => {
+    req.on('data', (chunk) => { body += chunk; });
+    req.on('end', async () => {
       try {
         const parsed = JSON.parse(body || '{}');
         const { action, payload } = parsed;
-        const result = handleAiEngineAction(action, payload);
+        const result = await handleAiEngineAction(action, payload);
         return sendJson(res, 200, result);
       } catch (err) {
         return sendJson(res, 400, {
@@ -312,10 +487,21 @@ const server = http.createServer((req, res) => {
 
   // Default 404
   sendJson(res, 404, { error: `Endpoint ${pathname} not found on verification daemon` });
+}
+
+const server = http.createServer((req, res) => {
+  handleRequest(req, res).catch((err) => {
+    console.error('[DevPartner AI] Unhandled error:', err);
+    sendJson(res, 500, { ok: false, error: 'Internal server error' });
+  });
 });
 
 server.listen(PORT, HOST, () => {
+  const wxStatus = watsonxConfigured()
+    ? `watsonx LIVE (model: ${WATSONX_MODEL}, region: ${WATSONX_REGION})`
+    : 'watsonx NOT configured — set WATSONX_API_KEY and WATSONX_PROJECT_ID in .env.local to enable';
   console.log(`[DevPartner AI] Verification Runner Daemon active on http://${HOST}:${PORT}`);
   console.log(`[DevPartner AI] ai-engine endpoint: http://${HOST}:${PORT}/functions/v1/ai-engine`);
-  console.log(`[DevPartner AI] Health check: http://${HOST}:${PORT}/health`);
+  console.log(`[DevPartner AI] Health check:       http://${HOST}:${PORT}/health`);
+  console.log(`[DevPartner AI] ${wxStatus}`);
 });

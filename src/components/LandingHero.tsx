@@ -347,9 +347,9 @@ export function LandingHero({
 
       {/* ── 4. Call to Action Banner ─────────────────────────────────── */}
       <section className="max-w-4xl mx-auto px-4">
-        <div className="rounded-2xl border border-slate-200/90 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-8 text-white shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="rounded-2xl border-2 border-sky-500/60 bg-slate-900 p-8 text-white shadow-lg ring-1 ring-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-1.5 text-center md:text-left">
-            <h3 className="font-heading text-lg sm:text-xl font-bold tracking-tight">
+            <h3 className="font-heading text-lg sm:text-xl font-bold tracking-tight text-white">
               Ready to verify repository modifications?
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 font-sans max-w-lg">
@@ -359,9 +359,9 @@ export function LandingHero({
           <Btn
             variant="primary"
             onClick={onLaunchStudio}
-            className="px-5 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-semibold shrink-0 shadow-2xs"
+            className="px-5 py-2.5 bg-sky-500 text-white hover:bg-sky-400 font-semibold shrink-0 shadow-md border border-sky-400"
           >
-            <Terminal className="size-4 text-sky-600" strokeWidth={1.75} />
+            <Terminal className="size-4 text-white" strokeWidth={1.75} />
             <span>Open Studio Workspace</span>
           </Btn>
         </div>
