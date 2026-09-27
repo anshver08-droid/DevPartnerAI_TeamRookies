@@ -1,0 +1,344 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DevPartner AI — IBM Bob &amp; watsonx.ai Usage</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2328;
+    background: #ffffff;
+    padding: 2rem 1rem;
+  }
+  .page { max-width: 760px; margin: 0 auto; }
+
+  h1 { font-size: 1.35rem; font-weight: 700; color: #1f2328; margin-bottom: 0.25rem; }
+  .subtitle { font-size: 0.82rem; color: #57606a; margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem; }
+  .subtitle strong { color: #3b82d4; }
+
+  h2 { font-size: 1rem; font-weight: 700; color: #1f2328; margin: 2rem 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+  h2 .pill {
+    font-size: 0.68rem; font-weight: 600; border-radius: 999px;
+    padding: 0.15rem 0.6rem; letter-spacing: 0.03em;
+  }
+  .pill-bob { background: #ede9fe; color: #5b21b6; }
+  .pill-wx  { background: #dbeafe; color: #1d4ed8; }
+
+  h3 { font-size: 0.85rem; font-weight: 700; color: #374151; margin: 1.25rem 0 0.4rem; }
+
+  p  { color: #374151; margin-bottom: 0.6rem; }
+  ul { margin: 0.4rem 0 0.8rem 1.2rem; color: #374151; }
+  li { margin-bottom: 0.3rem; }
+
+  .card {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1rem;
+  }
+  .card-title {
+    font-size: 0.78rem; font-weight: 700; color: #57606a;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+  }
+
+  .member-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+  @media (max-width: 540px) { .member-grid { grid-template-columns: 1fr; } }
+
+  .member-card {
+    background: #f7f8fa; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 0.85rem 1rem;
+  }
+  .member-name { font-weight: 700; font-size: 0.82rem; color: #1f2328; margin-bottom: 0.15rem; }
+  .member-role { font-size: 0.75rem; color: #57606a; margin-bottom: 0.5rem; }
+  .member-task { font-size: 0.78rem; color: #374151; }
+  .files { margin-top: 0.4rem; }
+  .file {
+    display: inline-block; font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 0.68rem; background: #ede9fe; color: #5b21b6;
+    border-radius: 4px; padding: 0.1rem 0.4rem; margin: 0.1rem 0.15rem 0.1rem 0;
+  }
+
+  .flow {
+    display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center;
+    margin: 0.5rem 0;
+  }
+  .flow-step {
+    background: #dbeafe; color: #1d4ed8;
+    font-size: 0.72rem; font-weight: 600;
+    padding: 0.2rem 0.55rem; border-radius: 999px;
+  }
+  .flow-arrow { color: #9ca3af; font-size: 0.8rem; }
+
+  .code-block {
+    background: #0f172a; color: #e2e8f0;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 0.72rem; line-height: 1.7;
+    border-radius: 7px; padding: 0.85rem 1rem;
+    margin: 0.5rem 0 0.9rem;
+    overflow-x: auto;
+  }
+  .code-comment { color: #64748b; }
+  .code-key     { color: #7dd3fc; }
+  .code-str     { color: #86efac; }
+  .code-fn      { color: #fde68a; }
+
+  .divider { border: none; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+
+  .tag { display: inline-block; font-size: 0.7rem; font-weight: 600; border-radius: 4px; padding: 0.1rem 0.45rem; }
+  .tag-green { background: #dcfce7; color: #166534; }
+  .tag-blue  { background: #dbeafe; color: #1d4ed8; }
+  .tag-amber { background: #fef9c3; color: #854d0e; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin: 0.5rem 0 1rem; }
+  th { background: #f7f8fa; text-align: left; padding: 0.45rem 0.7rem; border: 1px solid #e5e7eb; font-weight: 600; color: #57606a; }
+  td { padding: 0.4rem 0.7rem; border: 1px solid #e5e7eb; color: #374151; vertical-align: top; }
+  tr:nth-child(even) td { background: #f7f8fa; }
+
+  footer {
+    margin-top: 2.5rem; padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    text-align: center; font-size: 0.72rem; color: #9ca3af;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>DevPartner AI — IBM Bob &amp; watsonx.ai Usage</h1>
+  <p class="subtitle">
+    Team Rookies  ·  IBM Bob 2.0 Hackathon  · 
+    <strong>Ansh Verma · Akash Singh · Astitva Mall · Aditya Soam</strong>
+  </p>
+
+  
+  <h2>How the team used IBM Bob <span class="pill pill-bob">IBM Bob</span></h2>
+
+  <p>
+    IBM Bob was the primary AI development assistant used across all four team members throughout
+    the entire build of DevPartner AI. Each member used Bob within their own focused area of
+    the project, with Bob acting as an in-context coding partner inside the workspace.
+  </p>
+
+  <h3>Per-member usage — specific tasks and files</h3>
+
+  <div class="member-grid">
+    <div class="member-card">
+      <div class="member-name">Ansh Verma</div>
+      <div class="member-role">Team Lead — Core Pipeline</div>
+      <div class="member-task">
+        Used Bob to implement and debug the central pipeline state-machine that
+        drives every stage of the DevPartner workflow, from repo connection through
+        evidence generation. Bob assisted with wiring stage transitions, async
+        error handling, and integrating the AI engine client.
+      </div>
+      <div class="files">
+        <span class="file">src/hooks/usePipeline.ts</span>
+        <span class="file">src/App.tsx</span>
+        <span class="file">src/main.tsx</span>
+      </div>
+    </div>
+
+    <div class="member-card">
+      <div class="member-name">Aditya Soam</div>
+      <div class="member-role">AI &amp; Impact Analysis</div>
+      <div class="member-task">
+        Used Bob to build the AI engine client (<code style="font-size:0.7rem">callAiEngine</code>),
+        the dependency graph builder, and the impact-analysis logic that identifies
+        which files and modules are affected by a proposed change.
+      </div>
+      <div class="files">
+        <span class="file">src/lib/ai.ts</span>
+        <span class="file">src/lib/graph.ts</span>
+        <span class="file">src/components/ImpactMap.tsx</span>
+      </div>
+    </div>
+
+    <div class="member-card">
+      <div class="member-name">Akash Singh</div>
+      <div class="member-role">Verification &amp; Testing</div>
+      <div class="member-task">
+        Used Bob to implement the verification harness — property suite, mutation
+        testing, adversarial counterexample hunting — and to debug the invariant
+        and counterexample display components.
+      </div>
+      <div class="files">
+        <span class="file">src/lib/harness.ts</span>
+        <span class="file">src/components/InvariantPanel.tsx</span>
+        <span class="file">src/components/CounterexamplePanel.tsx</span>
+        <span class="file">src/components/VerificationPanel.tsx</span>
+      </div>
+    </div>
+
+    <div class="member-card">
+      <div class="member-name">Astitva Mall</div>
+      <div class="member-role">UI Design &amp; Evidence</div>
+      <div class="member-task">
+        Used Bob to build and refine the frontend UI components for displaying
+        analysis results and the final auditable evidence report. Also used Bob
+        to handle CSS/Tailwind styling, responsive layout, and the evidence
+        consolidation panel.
+      </div>
+      <div class="files">
+        <span class="file">src/components/EvidencePanel.tsx</span>
+        <span class="file">src/components/ImpactMap.tsx</span>
+        <span class="file">src/components/VerificationPanel.tsx</span>
+        <span class="file">src/index.css</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>What Bob specifically helped with</h3>
+  <ul>
+    <li><strong>Writing new functions</strong> — e.g. <code style="font-size:0.78rem">callAiEngine()</code> in <code style="font-size:0.78rem">src/lib/ai.ts</code>, the IAM token exchange and watsonx REST caller in <code style="font-size:0.78rem">server/runner.mjs</code>, and stage logic in <code style="font-size:0.78rem">usePipeline.ts</code>.</li>
+    <li><strong>Debugging async issues</strong> — pipeline stage race conditions and the async <code style="font-size:0.78rem">handleAiEngineAction</code> handler in the runner were debugged with Bob.</li>
+    <li><strong>Refactoring</strong> — Bob helped migrate the runner's request handler from synchronous to async/await and restructured the switch cases to include watsonx live paths with deterministic fallbacks.</li>
+    <li><strong>UI components</strong> — Bob wrote and iterated on Tailwind class layouts for the CTA banner, navigation bar, "How it works" sidebar, and the evidence panel.</li>
+    <li><strong>Environment &amp; config</strong> — Bob produced the <code style="font-size:0.78rem">.env.local</code> and updated <code style="font-size:0.78rem">.env.example</code> with correct variable names and in-line instructions.</li>
+    <li><strong>Content edits</strong> — Bob updated copy in the "How it works" box (Scan &amp; request step, Verify step) and removed the GitHub navigation link from the navbar.</li>
+  </ul>
+
+  <hr class="divider" />
+
+  
+  <h2>How the project uses IBM watsonx.ai <span class="pill pill-wx">watsonx.ai</span></h2>
+
+  <p>
+    DevPartner AI integrates IBM watsonx.ai (model: <strong>ibm/granite-3-8b-instruct</strong>)
+    as the live AI brain of its verification pipeline. The integration is implemented in
+    <code style="font-size:0.78rem">server/runner.mjs</code> and called from the frontend via
+    <code style="font-size:0.78rem">src/lib/ai.ts</code>.
+  </p>
+
+  <h3>Architecture — how the call chain works</h3>
+
+  <div class="flow">
+    <span class="flow-step">React UI (src/lib/ai.ts)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">POST /functions/v1/ai-engine</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">server/runner.mjs</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">IBM IAM (token)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">watsonx.ai REST API</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Granite 3 8B</span>
+  </div>
+
+  <h3>Authentication</h3>
+  <p>
+    The runner exchanges the <code style="font-size:0.78rem">WATSONX_API_KEY</code> (IBM Cloud IAM API key)
+    for a short-lived bearer token via <code style="font-size:0.78rem">https://iam.cloud.ibm.com/identity/token</code>.
+    Tokens are cached in memory and refreshed 60 seconds before expiry to avoid per-request latency.
+  </p>
+
+  <div class="code-block">
+<span class="code-comment">// server/runner.mjs — IAM token exchange</span>
+<span class="code-key">const</span> body = <span class="code-fn">new URLSearchParams</span>({
+  grant_type: <span class="code-str">'urn:ibm:params:oauth:grant-type:apikey'</span>,
+  apikey: WATSONX_API_KEY,
+});
+<span class="code-key">const</span> res = <span class="code-key">await</span> <span class="code-fn">fetch</span>(IAM_TOKEN_URL, {
+  method: <span class="code-str">'POST'</span>,
+  headers: { <span class="code-str">'Content-Type'</span>: <span class="code-str">'application/x-www-form-urlencoded'</span> },
+  body: body.<span class="code-fn">toString</span>(),
+});
+  </div>
+
+  <h3>Endpoint &amp; model parameters</h3>
+  <table>
+    <tr><th>Parameter</th><th>Value</th></tr>
+    <tr><td>API endpoint</td><td><code>https://&lt;region&gt;.ml.cloud.ibm.com/ml/v1/text/generation?version=2023-05-29</code></td></tr>
+    <tr><td>Model ID</td><td><code>ibm/granite-3-8b-instruct</code></td></tr>
+    <tr><td>Decoding</td><td>Greedy (<code>decoding_method: "greedy"</code>)</td></tr>
+    <tr><td>Max new tokens</td><td>512</td></tr>
+    <tr><td>Temperature</td><td>0.2 (low — for deterministic structured JSON output)</td></tr>
+    <tr><td>Stop sequence</td><td><code>&lt;/result&gt;</code></td></tr>
+    <tr><td>Region config</td><td><code>WATSONX_REGION</code> env var (default: <code>us-south</code>)</td></tr>
+  </table>
+
+  <h3>Four specific pipeline actions powered by watsonx</h3>
+
+  <div class="card">
+    <div class="card-title">1 — extract_intent</div>
+    <p>
+      The developer's natural-language change request is sent to Granite with a structured prompt.
+      Granite returns a JSON object containing the feature name, one-sentence summary,
+      requirements, constraints, invariants, affected code areas, and a confidence score.
+      This drives every downstream stage of the pipeline.
+    </p>
+    <p><span class="tag tag-blue">Prompt input</span> Developer request string  
+       <span class="tag tag-green">Output</span> Structured intent JSON</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">2 — generate_plan</div>
+    <p>
+      Given the extracted intent, the affected files, and the risk level, Granite generates
+      a structured multi-step implementation plan — including which files to touch, what tests
+      to run at each step, and a rollback description. The developer reviews and approves this
+      plan before any patch is applied.
+    </p>
+    <p><span class="tag tag-blue">Prompt input</span> Intent + target files + risk score  
+       <span class="tag tag-green">Output</span> Ordered step plan JSON</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">3 — hunt_counterexamples</div>
+    <p>
+      The declared invariants are sent to Granite along with the change request.
+      Granite is asked to actively search for adversarial boundary scenarios that could violate
+      those invariants — forged roles, missing authorization headers, boundary conditions, etc.
+      Any found violations are surfaced in the CounterexamplePanel.
+    </p>
+    <p><span class="tag tag-blue">Prompt input</span> Invariant list + change request  
+       <span class="tag tag-amber">Output</span> Violations array + scenario count</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">4 — generate_evidence</div>
+    <p>
+      After all verification stages pass, Granite generates a one-sentence auditable summary
+      of the evidence — the final verdict, what was checked, and what held. This is combined
+      with deterministic data (SHA-256 hash, timestamp) into the downloadable evidence report.
+    </p>
+    <p><span class="tag tag-blue">Prompt input</span> Change request context  
+       <span class="tag tag-green">Output</span> Verdict + evidence summary string</p>
+  </div>
+
+  <h3>Graceful fallback design</h3>
+  <p>
+    Every watsonx call is wrapped in a try/catch. If the API key is absent, the endpoint
+    is unreachable, or Granite returns unparseable output, the runner transparently falls back
+    to deterministic local logic — so the pipeline always works, even without credentials.
+    The <code style="font-size:0.78rem">ping</code> action reports
+    <code style="font-size:0.78rem">modelConfigured: true/false</code> and
+    <code style="font-size:0.78rem">environment: "watsonx-live" / "local-runner"</code>
+    so the UI can show the correct status badge.
+  </p>
+
+  <h3>Configuration</h3>
+  <p>
+    Credentials are stored in <code style="font-size:0.78rem">.env.local</code>
+    (excluded from git by <code style="font-size:0.78rem">.gitignore</code> rule <code style="font-size:0.78rem">.env.*</code>).
+    The public reference template is <code style="font-size:0.78rem">.env.example</code>.
+    Required variables:
+  </p>
+  <table>
+    <tr><th>Variable</th><th>Description</th></tr>
+    <tr><td><code>WATSONX_API_KEY</code></td><td>IBM Cloud IAM API key (never committed)</td></tr>
+    <tr><td><code>WATSONX_PROJECT_ID</code></td><td>watsonx.ai project ID</td></tr>
+    <tr><td><code>VITE_WATSONX_MODEL</code></td><td>Model ID (default: <code>ibm/granite-3-8b-instruct</code>)</td></tr>
+    <tr><td><code>WATSONX_REGION</code></td><td>IBM Cloud region (default: <code>us-south</code>)</td></tr>
+  </table>
+
+  <footer>Made with IBM Bob</footer>
+</div>
+</body>
+</html>
