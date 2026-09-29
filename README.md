@@ -17,8 +17,9 @@ IBM Bob was used to assist with the development and refinement of the core DevPa
 
 IBM Bob was used to assist with implementing, debugging, and refining the central DevPartner workflow. The resulting code was reviewed, tested, and integrated by the team member.
 
-## ![Evidence](<SS evidence/Screenshot r 2026-09-27 165602.jpg>)
-## ![Evidence](<SS evidence/Screenshot 2026-09-27 162911.jpg>)
+## ![Evidence](<SS evidence/screenshot.jpg>)
+## ![Evidence](<SS evidence/screenshot (2).jpg>)
+
 contains the IBM Bob task/session summary for this development work. 
 
 
